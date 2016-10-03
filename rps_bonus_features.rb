@@ -82,7 +82,6 @@ loop do
   display_winner(player_score, computer_score)
 
   player_retry = replay?
-
   break if player_retry != 'y'
 end
 
