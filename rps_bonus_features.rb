@@ -45,7 +45,7 @@ def replay?
     break if answer.casecmp('y').zero? || answer.casecmp('n').zero?
     prompt("Sorry, invalid answer.")
   end
-  answer
+  answer.downcase
 end
 
 puts <<-GREETING
