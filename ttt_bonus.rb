@@ -2,9 +2,9 @@ WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] +
                 [[2, 5, 8], [1, 4, 7], [3, 6, 9]] +
                 [[1, 5, 9], [3, 5, 7]]
 
-INITIAL_MARKER = ' '
-PLAYER_MARKER = 'X'
-COMPUTER_MARKER = 'O'
+INITIAL_MARKER = ' '.freeze
+PLAYER_MARKER = 'X'.freeze
+COMPUTER_MARKER = 'O'.freeze
 
 # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
 def display_board(board)
