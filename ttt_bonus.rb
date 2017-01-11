@@ -6,7 +6,7 @@ INITIAL_MARKER = ' '.freeze
 PLAYER_MARKER = 'X'.freeze
 COMPUTER_MARKER = 'O'.freeze
 
-# rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+# rubocop:disable Metrics/AbcSize
 def display_board(board)
   system 'cls'
   puts "You are #{PLAYER_MARKER}. Computer is #{COMPUTER_MARKER}."
@@ -24,7 +24,7 @@ def display_board(board)
   puts "     |     |"
   puts ""
 end
-# rubocop:enable Metrics/MethodLength, Metrics/AbcSize
+# rubocop:enable Metrics/AbcSize
 
 def prompt(msg)
   puts ">>> #{msg}"
@@ -34,6 +34,10 @@ def initialize_board
   new_board = {}
   (1..9).each { |num| new_board[num] = INITIAL_MARKER }
   new_board
+end
+
+def clear_screen
+  system('clear') || system('cls')
 end
 
 def player_choice
@@ -73,12 +77,10 @@ end
 
 def joinor(board, punct=",", conjunction="or")
   if board.count > 1
-    board_copy = board
     conjunct = " " + conjunction + " "
     last_item = board[-1].to_s.prepend(conjunct)
-    board_copy.delete_at(-1)
-    final_sentence = board_copy.join(punct) + last_item
-    final_sentence
+    board.delete_at(-1)
+    board.join(punct) + last_item
   else
     board[0]
   end
@@ -97,22 +99,24 @@ end
 
 def find_at_risk_square(line, board, marker)
   if board.values_at(*line).count(marker) == 2
-    board.select { |k, v| line.include?(k) && v == INITIAL_MARKER }.keys.first
+    board.select { |key, value| line.include?(key) && value == ' ' }.keys.first
   end
 end
 
-def computer_places_piece!(board)
-  square = nil
+def computer_square_choice(board, marker)
+  risky_square = nil
   WINNING_LINES.each do |line|
-    square = find_at_risk_square(line, board, COMPUTER_MARKER)
-    break if square
+    risky_square = find_at_risk_square(line, board, marker)
+    break if risky_square
   end
+  risky_square
+end
+
+def computer_places_piece!(board)
+  square = computer_square_choice(board, COMPUTER_MARKER)
 
   if !square
-    WINNING_LINES.each do |line|
-      square = find_at_risk_square(line, board, PLAYER_MARKER)
-      break if square
-    end
+    square = computer_square_choice(board, PLAYER_MARKER)
   end
 
   if !square
@@ -176,21 +180,27 @@ def replay_choice
   answer.downcase
 end
 
+def player_and_computer_turns(board, current_player)
+  loop do
+    clear_screen
+    display_board(board)
+    place_piece!(board, current_player)
+    current_player = alternate_player(current_player)
+    break if someone_won?(board) || board_full?(board)
+  end
+end
+
 loop do
   player_score = 0
   computer_score = 0
-  FIRST_MOVE = turn_decider
+  first_move = turn_decider
   loop do
     board = initialize_board
-    current_player = FIRST_MOVE
-    loop do
-      display_board(board)
-      place_piece!(board, current_player)
-      current_player = alternate_player(current_player)
+    current_player = first_move
 
-      break if someone_won?(board) || board_full?(board)
-    end
+    player_and_computer_turns(board, current_player)
 
+    clear_screen
     display_board(board)
 
     if detect_winner(board) == 'Computer'
@@ -205,9 +215,9 @@ loop do
     break if player_score == 5 || computer_score == 5
     sleep 2
   end
-
   try_again = replay_choice
   break if try_again == 'n'
+  clear_screen
 end
 
 prompt 'Thanks for playing Tic Tac Toe! Goodbye!'
